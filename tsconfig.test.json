@@ -1,0 +1,11 @@
+{
+  // Projeto separado para não deixar os tipos do Node entrarem no código da aplicação.
+  // Verificado por `npm run typecheck`, fora do `tsc -b` da build.
+  "extends": "./tsconfig.app.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "types": ["node", "vite/client", "@testing-library/jest-dom"]
+  },
+  "include": ["src", "tests"]
+}
