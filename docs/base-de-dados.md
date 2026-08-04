@@ -48,35 +48,50 @@ ninguém consegue criar conta com o email do atleta.
 
 ## Passo 3 — Ligar a aplicação ao projeto
 
-Precisas de dois valores, em **Project Settings → API**:
+Precisas de **dois valores**. O caminho mais rápido é o botão verde **Connect**, no topo do painel:
+mostra logo os dois, prontos a copiar. Em alternativa:
 
-- **Project URL** — algo como `https://abcdefgh.supabase.co`
-- **anon public** — uma chave longa
+| Valor | Onde | Parecido com |
+| --- | --- | --- |
+| **Project URL** | Settings → **Data API** | `https://abcdefgh.supabase.co` |
+| **Publishable key** | Settings → **API Keys** | `sb_publishable_7i2XRx...` |
 
-> A chave `anon` é **pública por desenho** e acaba dentro do JavaScript da página. Não é ela que
-> protege os dados: é o *Row Level Security* do passo 2. **Nunca** uses aqui a chave `service_role`,
-> essa ignora todas as regras de segurança.
+> **Atenção ao nome.** O Supabase renomeou estas chaves: a antiga `anon public` chama-se agora
+> **Publishable key**. As duas servem — a aplicação aceita qualquer uma. Se ainda vires o nome
+> antigo, está no separador *Legacy anon, service_role API keys*.
+>
+> **Nunca uses uma _Secret key_** (`sb_secret_…`, ou a antiga `service_role`). Essas ignoram o Row
+> Level Security: quem abrisse a página teria acesso a tudo.
+
+A chave publicável é **pública por desenho** e acaba dentro do JavaScript da página. Não é ela que
+protege os dados — é o *Row Level Security* do passo 2. O próprio painel diz isso: *"This key is
+safe to use in a browser if you have enabled Row Level Security"*.
 
 ### Em produção (GitHub Pages)
 
-Guarda os dois valores como segredos do repositório:
+Pelo site do GitHub, em **Settings → Secrets and variables → Actions → New repository secret**, cria
+dois segredos:
+
+| Name | Secret |
+| --- | --- |
+| `VITE_SUPABASE_URL` | o Project URL |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | a Publishable key |
+
+Ou pela linha de comandos, que pede o valor a seguir a cada comando:
 
 ```bash
 gh secret set VITE_SUPABASE_URL --repo Chopicao/app-treinos-gabriel
 ```
 
 ```bash
-gh secret set VITE_SUPABASE_ANON_KEY --repo Chopicao/app-treinos-gabriel
+gh secret set VITE_SUPABASE_PUBLISHABLE_KEY --repo Chopicao/app-treinos-gabriel
 ```
 
-Cada comando pede o valor. Depois basta lançar uma publicação nova:
+Depois lança uma publicação nova, para o build passar a incluir a ligação:
 
 ```bash
 gh workflow run deploy.yml --repo Chopicao/app-treinos-gabriel
 ```
-
-Também podes fazê-lo pelo site: **Settings → Secrets and variables → Actions → New repository
-secret**.
 
 ### Em desenvolvimento
 

@@ -8,7 +8,15 @@ import type { SupabaseClient } from '@supabase/supabase-js';
  * é isso que permite publicar e usar a aplicação antes de haver conta.
  */
 const url = import.meta.env.VITE_SUPABASE_URL?.trim();
-const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim();
+
+/**
+ * O Supabase renomeou esta chave: era `anon public`, passou a `Publishable key`
+ * (`sb_publishable_…`). São equivalentes e as duas servem, por isso aceitamos
+ * qualquer um dos nomes de variável e ficamos indiferentes ao nome do momento.
+ */
+const anonKey = (
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? import.meta.env.VITE_SUPABASE_ANON_KEY
+)?.trim();
 
 export const isCloudConfigured = Boolean(url && anonKey);
 

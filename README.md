@@ -71,10 +71,13 @@ Opcional e desligada por omissão. Para ligar, segue [`docs/base-de-dados.md`](d
 criar um projeto Supabase, correr [`docs/supabase-setup.sql`](docs/supabase-setup.sql) e definir duas
 variáveis.
 
-| Variável | Onde |
+| Variável | Onde no painel do Supabase |
 | --- | --- |
-| `VITE_SUPABASE_URL` | Supabase → Project Settings → API |
-| `VITE_SUPABASE_ANON_KEY` | idem, chave `anon public` |
+| `VITE_SUPABASE_URL` | Settings → Data API → *Project URL* |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Settings → API Keys → *Publishable key* (`sb_publishable_…`) |
+
+O Supabase renomeou esta chave: a antiga `anon public` é agora a *Publishable key*. As duas servem —
+`VITE_SUPABASE_ANON_KEY` continua a ser aceite.
 
 Em produção são segredos do repositório, injetados no build pelo workflow. Em desenvolvimento vão
 para `.env` (ver `.env.example`).
