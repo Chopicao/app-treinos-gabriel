@@ -57,10 +57,7 @@ export function AccountCard() {
   if (status !== 'signed-in') {
     return (
       <Card as="section">
-        <CardHeader
-          title="Conta"
-          subtitle="Sem conta, os treinos ficam só neste dispositivo."
-        />
+        <CardHeader title="Conta" subtitle="Sem conta, os treinos ficam só neste dispositivo." />
         <p className="text-muted mb-3 text-sm">
           Cria conta com o teu email para guardares os treinos na tua área privada e poderes entrar
           noutro telemóvel sem perder o histórico.
@@ -112,8 +109,8 @@ export function AccountCard() {
       {accountConflict ? (
         <Notice tone="warn" title="Este dispositivo tem dados de outra conta" className="mt-3">
           <p>
-            Para evitar misturar treinos de pessoas diferentes, nada foi enviado. Podes substituir os
-            dados deste dispositivo pelos da conta em que acabaste de entrar.
+            Para evitar misturar treinos de pessoas diferentes, nada foi enviado. Podes substituir
+            os dados deste dispositivo pelos da conta em que acabaste de entrar.
           </p>
           <Button size="sm" variant="danger" className="mt-3" onClick={() => setConflictOpen(true)}>
             Substituir dados locais

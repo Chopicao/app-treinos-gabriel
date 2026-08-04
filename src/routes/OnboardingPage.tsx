@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShieldCheck } from 'lucide-react';
 import { useAppStore } from '@/state/useAppStore';
+import { useAccountStore } from '@/state/useAccountStore';
+import { AccountForm } from '@/components/AccountForm';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { SelectInput, TextArea, TextInput, Toggle } from '@/components/ui/Field';
@@ -22,6 +24,8 @@ export function OnboardingPage() {
   const settings = useAppStore((state) => state.settings);
   const updateProfile = useAppStore((state) => state.updateProfile);
   const updateSettings = useAppStore((state) => state.updateSettings);
+  const accountStatus = useAccountStore((state) => state.status);
+  const accountEmail = useAccountStore((state) => state.email);
 
   const [name, setName] = useState(profile.namePt);
   const [age, setAge] = useState(profile.ageYears === null ? '' : String(profile.ageYears));
@@ -74,10 +78,39 @@ export function OnboardingPage() {
         subtitle="Preenche o perfil, escolhe a data de início e confirma o aviso de segurança. Podes alterar tudo mais tarde nas definições."
       />
 
-      <Notice>
-        Estes dados ficam guardados <strong>apenas neste dispositivo</strong>. A aplicação não tem
-        conta nem servidor, e nada é enviado para a Internet.
-      </Notice>
+      {accountStatus !== 'unconfigured' ? (
+        <Card as="section">
+          <CardHeader
+            title={
+              accountStatus === 'signed-in' ? 'Conta ligada' : 'Onde ficam guardados os treinos'
+            }
+            subtitle={
+              accountStatus === 'signed-in'
+                ? (accountEmail ?? undefined)
+                : 'Com conta, os treinos ficam também na tua área privada e não se perdem se mudares de telemóvel.'
+            }
+          />
+          {accountStatus === 'signed-in' ? (
+            <p className="text-muted text-sm">
+              A partir de agora os treinos são guardados neste telemóvel e sincronizados com a tua
+              conta.
+            </p>
+          ) : (
+            <>
+              <AccountForm compact />
+              <p className="text-muted mt-4 text-xs">
+                Podes saltar este passo: a aplicação funciona à mesma e os treinos ficam guardados
+                neste telemóvel. Podes criar conta mais tarde em Definições.
+              </p>
+            </>
+          )}
+        </Card>
+      ) : (
+        <Notice>
+          Estes dados ficam guardados <strong>apenas neste dispositivo</strong>. A aplicação não tem
+          conta nem servidor, e nada é enviado para a Internet.
+        </Notice>
+      )}
 
       <Card as="section">
         <CardHeader title="Perfil" subtitle={OBJECTIVE_SUMMARY_PT} />
@@ -145,7 +178,11 @@ export function OnboardingPage() {
       <Card as="section">
         <CardHeader
           title="Historial e mobilidade"
-          subtitle="Opcional, mas ajuda a lembrar onde é preciso ter cuidado. Fica só neste dispositivo."
+          subtitle={
+            accountStatus === 'signed-in'
+              ? 'Opcional, mas ajuda a lembrar onde é preciso ter cuidado. Fica no dispositivo e na tua área privada.'
+              : 'Opcional, mas ajuda a lembrar onde é preciso ter cuidado. Fica só neste dispositivo.'
+          }
         />
         <div className="space-y-3">
           <TextArea

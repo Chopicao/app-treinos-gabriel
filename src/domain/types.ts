@@ -355,6 +355,8 @@ export interface AppSettings {
   planStartDate: string;
   onboardingCompletedAt?: string;
   safetyAcknowledgedAt?: string;
+  /** Convite para criar conta, dispensado no painel "Hoje". */
+  accountPromptDismissedAt?: string;
   theme: ThemePreference;
   soundEnabled: boolean;
   vibrationEnabled: boolean;

@@ -272,6 +272,7 @@ export const appSettingsSchema = z.object({
   planStartDate: isoDate,
   onboardingCompletedAt: isoDateTime.optional(),
   safetyAcknowledgedAt: isoDateTime.optional(),
+  accountPromptDismissedAt: isoDateTime.optional(),
   theme: z.enum(['light', 'dark', 'system']),
   soundEnabled: z.boolean(),
   vibrationEnabled: z.boolean(),

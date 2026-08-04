@@ -4,6 +4,7 @@ import { CalendarDays, Info } from 'lucide-react';
 import { useAppStore } from '@/state/useAppStore';
 import { useOccurrences } from '@/hooks/useSchedule';
 import { SessionCard } from '@/components/SessionCard';
+import { AccountPrompt } from '@/components/AccountPrompt';
 import { runnerHref, sessionHref } from '@/lib/routes';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { ButtonLink } from '@/components/ui/Button';
@@ -49,6 +50,8 @@ export function TodayPage() {
           </ButtonLink>
         }
       />
+
+      <AccountPrompt />
 
       {beforeStart ? (
         <Notice tone="warn" title="O plano ainda não começou">
