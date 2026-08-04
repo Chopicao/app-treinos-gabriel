@@ -14,6 +14,7 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install chromium",
+    "check:pwa": "node scripts/check-pwa-update.mjs",
     "check:subpath": "node scripts/check-subpath.mjs",
     "verify:videos": "node scripts/verify-videos.mjs",
     "search:videos": "node scripts/search-youtube.mjs",

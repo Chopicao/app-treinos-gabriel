@@ -16,3 +16,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+/** Data da compilação (e commit, quando publicada). Definido pelo Vite. */
+declare const __BUILD_ID__: string;

@@ -1,9 +1,10 @@
-import { useRef, useState } from 'react';
+﻿import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Download, RotateCcw, Upload } from 'lucide-react';
 import { useAppStore } from '@/state/useAppStore';
 import { buildExportBundle, downloadBundle, parseImportBundle } from '@/services/exportImport';
 import { AccountCard } from '@/components/AccountCard';
+import { VersionCard } from '@/components/VersionCard';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
@@ -13,8 +14,6 @@ import { EXERCISES, hasVerifiedVideo } from '@/data/exercises';
 import { DOMINANT_FOOT_OPTIONS_PT, POSITION_OPTIONS_PT, PROFILE_HINTS_PT } from '@/data/profile';
 import { toLines } from '@/lib/text';
 import { formatFullPt, startOfWeek } from '@/lib/dates';
-import { PLAN_VERSION } from '@/data/plan';
-import { SCHEMA_VERSION } from '@/services/db';
 
 export function SettingsPage() {
   const settings = useAppStore((state) => state.settings);
@@ -172,9 +171,6 @@ export function SettingsPage() {
           }
           hint={`A semana começa à segunda-feira. Atualmente: ${formatFullPt(settings.planStartDate)}.`}
         />
-        <p className="text-muted mt-2 text-xs">
-          Versão do plano {PLAN_VERSION} · versão da base local {SCHEMA_VERSION}
-        </p>
       </Card>
 
       <Card as="section">
@@ -284,6 +280,8 @@ export function SettingsPage() {
           Abrir revisão de vídeos
         </Link>
       </Card>
+
+      <VersionCard />
 
       <Modal
         open={resetOpen}

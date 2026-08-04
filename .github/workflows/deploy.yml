@@ -49,6 +49,11 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build
 
+      - name: A aplicação compilada atualiza-se sozinha?
+        # Já falhou: sem isto, um telemóvel com a aplicação instalada ficava
+        # preso na versão em cache e nunca recebia nada de novo.
+        run: node scripts/check-pwa-update.mjs
+
       - name: Fallback de SPA
         # O GitHub Pages não reescreve rotas: servir o index.html no 404 faz com
         # que abrir /calendario diretamente funcione.
