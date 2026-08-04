@@ -7,7 +7,18 @@ import type { SupabaseClient } from '@supabase/supabase-js';
  * a aplicação continua a funcionar exatamente como antes, só neste dispositivo —
  * é isso que permite publicar e usar a aplicação antes de haver conta.
  */
-const url = import.meta.env.VITE_SUPABASE_URL?.trim();
+/**
+ * O painel do Supabase mostra vários endereços e é fácil copiar o do endpoint
+ * REST (`.../rest/v1/`) em vez da raiz do projeto. O cliente precisa da raiz,
+ * por isso normalizamos aqui em vez de deixar falhar com um erro obscuro.
+ */
+function normalizeProjectUrl(value: string | undefined): string | undefined {
+  const trimmed = value?.trim();
+  if (!trimmed) return undefined;
+  return trimmed.replace(/\/(rest|auth|storage|realtime)\/v\d+\/?$/, '').replace(/\/+$/, '');
+}
+
+const url = normalizeProjectUrl(import.meta.env.VITE_SUPABASE_URL);
 
 /**
  * O Supabase renomeou esta chave: era `anon public`, passou a `Publishable key`
@@ -41,6 +52,8 @@ export async function getSupabase(): Promise<SupabaseClient | null> {
   );
   return clientPromise;
 }
+
+export const __test = { normalizeProjectUrl };
 
 /** Mensagens do Supabase em inglês → português, para o que o atleta vê. */
 export function translateAuthError(message: string): string {
