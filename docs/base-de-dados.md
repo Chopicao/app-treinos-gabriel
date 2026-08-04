@@ -46,6 +46,24 @@ ninguém consegue criar conta com o email do atleta.
 > No plano gratuito, o serviço de email do Supabase tem um limite baixo de mensagens por hora.
 > Para uso pessoal chega bem. Se um dia der erro a enviar, é isso.
 
+### Para onde o email leva de volta — não saltar este passo
+
+Por omissão, o Supabase só aceita devolver o utilizador a `http://localhost:3000`. Sem isto, a
+ligação do email de confirmação **abre uma página que não existe** e parece que a conta não
+funciona.
+
+Em **Authentication → URL Configuration**:
+
+| Campo | Valor |
+| --- | --- |
+| **Site URL** | `https://chopicao.github.io/app-treinos-gabriel/` |
+| **Redirect URLs** | acrescentar `https://chopicao.github.io/app-treinos-gabriel/**` |
+
+Se também usares a aplicação em desenvolvimento, acrescenta `http://localhost:5173/**` às
+*Redirect URLs*.
+
+Os `**` no fim são propositados: autorizam qualquer caminho dentro da aplicação.
+
 ## Passo 3 — Ligar a aplicação ao projeto
 
 Precisas de **dois valores**. O caminho mais rápido é o botão verde **Connect**, no topo do painel:
