@@ -66,13 +66,19 @@ Os `**` no fim são propositados: autorizam qualquer caminho dentro da aplicaç�
 
 ## Passo 3 — Ligar a aplicação ao projeto
 
-Precisas de **dois valores**. O caminho mais rápido é o botão verde **Connect**, no topo do painel:
-mostra logo os dois, prontos a copiar. Em alternativa:
+Precisas de **dois valores**:
 
 | Valor | Onde | Parecido com |
 | --- | --- | --- |
 | **Project URL** | Settings → **Data API** | `https://abcdefgh.supabase.co` |
 | **Publishable key** | Settings → **API Keys** | `sb_publishable_7i2XRx...` |
+
+> **Não uses o botão verde "Connect" para isto.** Esse diálogo serve para montar um projeto novo de
+> raiz — propõe instalar Next.js, um ORM ou uma cadeia de ligação ao Postgres, nada disso é preciso
+> aqui — e um dos separadores mostra a **chave secreta**, que nunca pode entrar nesta aplicação.
+>
+> Repara também que o **Project URL não é o endereço do endpoint REST**. Se copiares algo terminado
+> em `/rest/v1/`, a aplicação corta o sufixo sozinha, mas o valor certo é a raiz.
 
 > **Atenção ao nome.** O Supabase renomeou estas chaves: a antiga `anon public` chama-se agora
 > **Publishable key**. As duas servem — a aplicação aceita qualquer uma. Se ainda vires o nome
