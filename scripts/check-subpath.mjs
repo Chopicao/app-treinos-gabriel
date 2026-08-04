@@ -5,21 +5,45 @@
  * publicar, por isso vale a pena verificar antes: carrega a aplicação a partir
  * do subdiretório, navega, e falha se houver erros na consola.
  *
- * Usage: node scripts/check-subpath.mjs [base] [porta]
+ * Aceita um URL completo (para verificar o site já publicado) ou um caminho base
+ * e uma porta (para verificar o `vite preview` local).
+ *
+ * Usage:
+ *   node scripts/check-subpath.mjs https://utilizador.github.io/repo/
+ *   node scripts/check-subpath.mjs /repo/ 4174
  */
 import { chromium } from '@playwright/test';
 
-const base = process.argv[2] ?? '/app-treinos-gabriel/';
+const first = process.argv[2] ?? '/app-treinos-gabriel/';
 const port = process.argv[3] ?? '4174';
-const url = `http://127.0.0.1:${port}${base}`;
+const url = first.startsWith('http')
+  ? first.endsWith('/')
+    ? first
+    : `${first}/`
+  : `http://127.0.0.1:${port}${first}`;
+const base = new URL(url).pathname;
 
 const browser = await chromium.launch();
 const page = await browser.newPage();
+
 const errors = [];
-page.on('console', (message) => {
-  if (message.type() === 'error') errors.push(message.text());
-});
+const failedAssets = [];
+
 page.on('pageerror', (error) => errors.push(error.message));
+page.on('response', (response) => {
+  if (response.status() < 400) return;
+  // O GitHub Pages não reescreve rotas: uma ligação direta é servida pelo
+  // 404.html, que devolve o estado 404 mas rende a aplicação na mesma. Isso é
+  // esperado. Qualquer outro recurso em falha é que seria um problema.
+  const isNavigationFallback = response.request().resourceType() === 'document';
+  if (isNavigationFallback) return;
+  failedAssets.push(`${response.status()} ${response.url()}`);
+});
+page.on('console', (message) => {
+  if (message.type() !== 'error') return;
+  if (message.text().includes('Failed to load resource')) return;
+  errors.push(message.text());
+});
 
 let failed = false;
 try {
@@ -45,8 +69,9 @@ try {
   await page.getByRole('heading', { level: 1, name: 'Exercícios' }).waitFor({ timeout: 15_000 });
   process.stdout.write('ok  ligação direta a uma rota profunda funciona\n');
 
+  if (failedAssets.length) throw new Error(`recursos em falta: ${failedAssets.join(' | ')}`);
   if (errors.length) throw new Error(`erros na consola: ${errors.join(' | ')}`);
-  process.stdout.write('\nTudo certo para publicar num subdiretório.\n');
+  process.stdout.write('\nTudo certo: nenhum recurso em falta e nenhum erro de aplicação.\n');
 } catch (error) {
   failed = true;
   process.stderr.write(`FALHOU: ${error.message}\n`);
