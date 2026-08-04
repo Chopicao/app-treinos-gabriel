@@ -17,7 +17,40 @@ import type {
 export const DB_NAME = 'app-treinos';
 
 /** Bump together with a new `version(n).stores(...)` block below. */
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
+
+/**
+ * Marca de eliminação. Sem isto, apagar uma sessão num dispositivo não se
+ * propagava: a sincronização seguinte voltava a trazê-la do servidor.
+ */
+export interface Tombstone {
+  /** `${kind}:${id}` */
+  key: string;
+  kind: 'session' | 'override';
+  id: string;
+  deletedAt: string;
+}
+
+/** Estado da sincronização com a conta na nuvem. */
+export interface SyncMeta {
+  id: 'sync';
+  /** Conta a que os dados locais pertencem. Muda ⇒ os dados locais são limpos. */
+  userId: string | null;
+  /** Carimbo do servidor até ao qual já foi lido. */
+  lastPulledAt: string | null;
+  lastSyncedAt: string | null;
+  lastErrorPt: string | null;
+}
+
+export function emptySyncMeta(): SyncMeta {
+  return {
+    id: 'sync',
+    userId: null,
+    lastPulledAt: null,
+    lastSyncedAt: null,
+    lastErrorPt: null,
+  };
+}
 
 export class TrainingDatabase extends Dexie {
   sessions!: Table<SessionLog, string>;
@@ -25,6 +58,8 @@ export class TrainingDatabase extends Dexie {
   settings!: Table<AppSettings, string>;
   profile!: Table<AthleteProfile, string>;
   timers!: Table<PersistedTimer, string>;
+  tombstones!: Table<Tombstone, string>;
+  syncMeta!: Table<SyncMeta, string>;
 
   constructor(name: string = DB_NAME) {
     super(name);
@@ -34,6 +69,11 @@ export class TrainingDatabase extends Dexie {
       settings: 'id',
       profile: 'id',
       timers: 'id, sessionLogId',
+    });
+    // v2 acrescenta o necessário para sincronizar com uma conta.
+    this.version(2).stores({
+      tombstones: 'key, kind, deletedAt',
+      syncMeta: 'id',
     });
   }
 }

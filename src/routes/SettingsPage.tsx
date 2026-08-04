@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Download, RotateCcw, Upload } from 'lucide-react';
 import { useAppStore } from '@/state/useAppStore';
 import { buildExportBundle, downloadBundle, parseImportBundle } from '@/services/exportImport';
+import { AccountCard } from '@/components/AccountCard';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader } from '@/components/ui/Card';
 import { Modal } from '@/components/ui/Modal';
@@ -57,6 +58,8 @@ export function SettingsPage() {
   return (
     <div className="space-y-5">
       <PageHeader title="Definições" />
+
+      <AccountCard />
 
       <Card as="section">
         <CardHeader

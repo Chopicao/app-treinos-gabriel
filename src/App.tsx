@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { AppLayout } from '@/components/AppLayout';
 import { useAppStore } from '@/state/useAppStore';
+import { useAccountStore } from '@/state/useAccountStore';
 import { useTheme } from '@/hooks/useTheme';
 import { TodayPage } from '@/routes/TodayPage';
 
@@ -43,6 +44,9 @@ const VideoReviewPage = lazy(() =>
 const NotFoundPage = lazy(() =>
   import('@/routes/NotFoundPage').then((m) => ({ default: m.NotFoundPage })),
 );
+const AccountPage = lazy(() =>
+  import('@/routes/AccountPage').then((m) => ({ default: m.AccountPage })),
+);
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -58,13 +62,16 @@ export default function App() {
   const theme = useAppStore((state) => state.settings.theme);
   const onboardingCompletedAt = useAppStore((state) => state.settings.onboardingCompletedAt);
   const init = useAppStore((state) => state.init);
+  const initAccount = useAccountStore((state) => state.init);
   const location = useLocation();
 
   useTheme(theme);
 
   useEffect(() => {
-    void init();
-  }, [init]);
+    // A conta arranca depois dos dados locais: a aplicação tem de funcionar
+    // mesmo sem rede ou sem base de dados configurada.
+    void init().then(() => initAccount());
+  }, [init, initAccount]);
 
   if (status === 'loading') {
     return (
@@ -113,6 +120,7 @@ export default function App() {
             <Route path="/historico/:sessionId" element={<SessionSummaryPage />} />
             <Route path="/exercicios" element={<LibraryPage />} />
             <Route path="/exercicios/:exerciseId" element={<ExerciseDetailPage />} />
+            <Route path="/conta" element={<AccountPage />} />
             <Route path="/definicoes" element={<SettingsPage />} />
             <Route path="/definicoes/videos" element={<VideoReviewPage />} />
             <Route path="/sobre" element={<AboutPlanPage />} />

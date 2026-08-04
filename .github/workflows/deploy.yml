@@ -41,6 +41,10 @@ jobs:
         env:
           # A aplicação é servida em https://<utilizador>.github.io/<repositório>/
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          # Ligação à base de dados. Se estes segredos não existirem, o build
+          # corre na mesma e a aplicação funciona só no dispositivo.
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
         run: npm run build
 
       - name: Fallback de SPA

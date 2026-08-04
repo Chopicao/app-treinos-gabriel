@@ -32,6 +32,8 @@ export interface AppState {
   overrides: OccurrenceOverride[];
 
   init(): Promise<void>;
+  /** Relê tudo da base local. Usado depois de a sincronização trazer dados. */
+  reload(): Promise<void>;
   updateSettings(patch: Partial<AppSettings>): Promise<void>;
   updateProfile(patch: Partial<AthleteProfile>): Promise<void>;
 
@@ -90,6 +92,16 @@ export const useAppStore = create<AppState>((set, get) => ({
       });
       console.error(error);
     }
+  },
+
+  async reload() {
+    const [settings, profile, sessions, overrides] = await Promise.all([
+      repository.getSettings(),
+      repository.getProfile(),
+      repository.listSessions(),
+      repository.listOverrides(),
+    ]);
+    set({ settings, profile, sessions, overrides });
   },
 
   async updateSettings(patch) {

@@ -1,8 +1,12 @@
 # Treinos — plano de pré-época
 
 Aplicação web para acompanhar um plano de treino de seis semanas: rotina diária de mobilidade, duas
-sessões de ginásio, treinos de futebol e jogo. É *mobile-first*, funciona offline, instala-se como
-PWA e guarda tudo no próprio dispositivo — sem conta, sem servidor e sem analítica.
+sessões de ginásio, treinos de futebol e jogo. É *mobile-first*, funciona offline e instala-se como
+PWA.
+
+Os treinos são guardados **primeiro no dispositivo** e, se houver conta, sincronizados para uma área
+privada na nuvem. Sem base de dados configurada, a aplicação funciona à mesma, só sem conta e sem
+sincronização.
 
 > Esta aplicação acompanha um plano fornecido pelo utilizador. Não diagnostica, não trata e não
 > substitui um médico, fisioterapeuta desportivo ou treinador certificado.
@@ -13,6 +17,7 @@ PWA e guarda tudo no próprio dispositivo — sem conta, sem servidor e sem anal
 
 - [Requisitos](#requisitos)
 - [Comandos](#comandos)
+- [Conta e sincronização](#conta-e-sincronização)
 - [Arquitetura](#arquitetura)
 - [Como alterar o plano](#como-alterar-o-plano)
 - [Persistência e migrações](#persistência-e-migrações)
@@ -60,10 +65,37 @@ Abre a aplicação em `http://localhost:5173`.
 | `npm run search:videos` | Recolhe candidatos reais do YouTube para cada exercício. |
 | `npm run verify:videos` | Reverifica os vídeos guardados (`--write` atualiza o ficheiro). |
 
+## Conta e sincronização
+
+Opcional e desligada por omissão. Para ligar, segue [`docs/base-de-dados.md`](docs/base-de-dados.md):
+criar um projeto Supabase, correr [`docs/supabase-setup.sql`](docs/supabase-setup.sql) e definir duas
+variáveis.
+
+| Variável | Onde |
+| --- | --- |
+| `VITE_SUPABASE_URL` | Supabase → Project Settings → API |
+| `VITE_SUPABASE_ANON_KEY` | idem, chave `anon public` |
+
+Em produção são segredos do repositório, injetados no build pelo workflow. Em desenvolvimento vão
+para `.env` (ver `.env.example`).
+
+Pontos de desenho que importam:
+
+- **O dispositivo continua a ser a fonte de verdade durante o treino.** Escreve-se sempre primeiro
+  em IndexedDB; a sincronização vem depois. Sem isto, um ginásio sem rede tornava a aplicação
+  inútil.
+- **A segurança não depende de esconder a chave.** A chave `anon` é pública por desenho. O que
+  protege os dados é o *Row Level Security*: cada conta só alcança as suas linhas.
+- **Conflitos resolvem-se pela alteração mais recente**, e as eliminações propagam-se através de
+  marcas de eliminação locais. As regras estão isoladas e testadas em `src/services/sync/merge.ts`.
+- **O SDK só é descarregado se houver base de dados configurada.** Num build sem as variáveis, o
+  código do Supabase nem entra no pacote.
+
 ## Arquitetura
 
 React 19 + TypeScript + Vite, com React Router, Tailwind CSS 4, Zustand para estado de interface,
-Dexie sobre IndexedDB para persistência, Zod para validação e `date-fns` para datas em PT-PT.
+Dexie sobre IndexedDB para persistência, Supabase para conta e sincronização, Zod para validação e
+`date-fns` para datas em PT-PT.
 
 ```
 src/
@@ -80,9 +112,14 @@ src/
     schedule.ts    Gera as ocorrências a partir da semana-tipo e das remarcações.
     sessionBuilder.ts  Constrói o registo de uma sessão a partir do plano.
     progression.ts Histórico por exercício e sugestão informativa de progressão.
-    db.ts          Base local (Dexie) e migração do armazenamento antigo.
-    repository.ts  ÚNICO módulo que fala com a base de dados.
+    db.ts          Base local (Dexie), marcas de eliminação e estado da sincronização.
+    repository.ts  ÚNICO módulo que fala com a base de dados local.
     exportImport.ts  Exportação e importação validada.
+    sync/          Conta e sincronização (tudo opcional).
+      supabaseClient.ts  Cliente carregado a pedido; nulo quando não há configuração.
+      remote.ts    Leitura e escrita nas tabelas da conta.
+      merge.ts     Regras de junção, puras e testadas.
+      syncEngine.ts  Uma passagem: ler, juntar, escrever, enviar.
   lib/             Utilitários puros: datas, formatação, temporizador, ids.
   state/           Zustand: estado da aplicação e dos temporizadores.
   hooks/           useCountdown, useSchedule, useTheme.
@@ -295,8 +332,9 @@ para valerem para qualquer utilizador sem descreverem uma pessoa concreta.
 
 ## Limitações conhecidas
 
-- **Um único atleta e um único dispositivo.** Não há sincronização; a partilha faz-se por
-  exportação/importação.
+- **Uma conta por atleta.** Não há partilha com um treinador nem vista de equipa.
+- **A sincronização resolve conflitos pela alteração mais recente.** Editar a mesma sessão em dois
+  telemóveis ao mesmo tempo faz perder a alteração mais antiga; não há fusão campo a campo.
 - **O plano base cobre seis semanas.** A partir da semana 7 as prescrições mantêm as das semanas 5–6
   e a aplicação pede avaliação antes de progredir para barra pesada, saltos e trabalho explosivo.
 - **A duração das sessões é estimada**, a partir das prescrições, e não medida.
